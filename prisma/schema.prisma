@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -13,8 +12,9 @@ model User {
   email     String      @unique
   name      String?
   address   String?
-  status    String      @default("active")
-  role      String      @default("customer")
+  image     String?
+  status    UserStatus  @default(active)
+  role      ROLE        @default(customer)
   createdAt DateTime
   medicines Medicines[]
 }
@@ -56,4 +56,15 @@ model Categories {
   id        Int       @id @default(autoincrement())
   productId Int
   product   Medicines @relation(fields: [productId], references: [id])
+}
+
+enum ROLE {
+  admin
+  customer
+  seller
+}
+
+enum UserStatus {
+  active
+  ban
 }
