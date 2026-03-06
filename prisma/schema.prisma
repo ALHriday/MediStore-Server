@@ -1,3 +1,9 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -7,19 +13,72 @@ datasource db {
   provider = "postgresql"
 }
 
-model Users {
-  id        String      @id @default(uuid())
-  email     String      @unique
-  name      String
-  password  String
-  address   String?
-  image     String?
-  status    UserStatus  @default(ACTIVE)
-  role      ROLE        @default(CUSTOMER)
-  medicines Medicines[]
-  orders    Orders[]
-  reviews   Reviews[]
-  createdAt DateTime    @default(now())
+model User {
+  id            String      @id @default(uuid())
+  name          String
+  email         String
+  emailVerified Boolean     @default(false)
+  image         String?
+  status        UserStatus  @default(ACTIVE)
+  role          ROLE        @default(CUSTOMER)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  medicines     Medicines[]
+  orders        Orders[]
+  reviews       Reviews[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
 
 model Medicines {
@@ -34,7 +93,7 @@ model Medicines {
   category     Categories @relation(fields: [categoryId], references: [id])
   reviews      Reviews[]
   userId       String?
-  user         Users?     @relation(fields: [userId], references: [id])
+  user         User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }
@@ -42,7 +101,7 @@ model Medicines {
 model Orders {
   id               String      @id @default(uuid())
   userId           String
-  user             Users       @relation(fields: [userId], references: [id])
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   shipping_Address String
   status           OrderStatus @default(PLACED)
   totalAmount      Float
@@ -52,9 +111,9 @@ model Orders {
 model Reviews {
   id         String    @id @default(uuid())
   userId     String
-  user       Users     @relation(fields: [userId], references: [id])
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   medicineId String
-  medicine   Medicines @relation(fields: [medicineId], references: [id])
+  medicine   Medicines @relation(fields: [medicineId], references: [id], onDelete: Cascade)
   rating     Int
   comment    String?
   createdAt  DateTime  @default(now())
