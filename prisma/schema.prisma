@@ -7,64 +7,81 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id        Int         @id @default(autoincrement())
+model Users {
+  id        String      @id @default(uuid())
   email     String      @unique
-  name      String?
+  name      String
+  password  String
   address   String?
   image     String?
-  status    UserStatus  @default(active)
-  role      ROLE        @default(customer)
-  createdAt DateTime
+  status    UserStatus  @default(ACTIVE)
+  role      ROLE        @default(CUSTOMER)
   medicines Medicines[]
+  orders    Orders[]
+  reviews   Reviews[]
+  createdAt DateTime    @default(now())
 }
 
 model Medicines {
-  id           Int          @id @default(autoincrement())
+  id           String     @id @default(uuid())
   title        String
+  image        String?
   price        Float
   stock        Int
   manufacturer String
   description  String
-  userId       Int
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt    DateTime
-  updatedAt    DateTime
+  categoryId   String
+  category     Categories @relation(fields: [categoryId], references: [id])
   reviews      Reviews[]
-  categories   Categories[]
-  orders       Orders[]
+  userId       String?
+  user         Users?     @relation(fields: [userId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
 
 model Orders {
-  id               Int       @id @default(autoincrement())
-  productId        Int
-  product          Medicines @relation(fields: [productId], references: [id], onDelete: Cascade)
-  cashOnDelivery   Boolean
+  id               String      @id @default(uuid())
+  userId           String
+  user             Users       @relation(fields: [userId], references: [id])
   shipping_Address String
-  createdAt        DateTime
+  status           OrderStatus @default(PLACED)
+  totalAmount      Float
+  createdAt        DateTime    @default(now())
 }
 
 model Reviews {
-  id        Int       @id @default(autoincrement())
-  productId Int
-  product   Medicines @relation(fields: [productId], references: [id], onDelete: Cascade)
-  rating    Int
-  createdAt DateTime
+  id         String    @id @default(uuid())
+  userId     String
+  user       Users     @relation(fields: [userId], references: [id])
+  medicineId String
+  medicine   Medicines @relation(fields: [medicineId], references: [id])
+  rating     Int
+  comment    String?
+  createdAt  DateTime  @default(now())
 }
 
 model Categories {
-  id        Int       @id @default(autoincrement())
-  productId Int
-  product   Medicines @relation(fields: [productId], references: [id])
+  id        String      @id @default(uuid())
+  name      String      @unique
+  medicine  Medicines[]
+  createdAt DateTime    @default(now())
 }
 
 enum ROLE {
-  admin
-  customer
-  seller
+  ADMIN
+  SELLER
+  CUSTOMER
 }
 
 enum UserStatus {
-  active
-  ban
+  ACTIVE
+  BAN
+}
+
+enum OrderStatus {
+  PLACED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }
