@@ -7,7 +7,7 @@ export const port = process.env.PORT || 5000;
 export const app = express();
 
 app.use(cors({
-    origin: process.env.BETTER_AUTH_URL,
+    origin: process.env.APP_URL || "http://localhost:4000",
     credentials: true
 }));
 
