@@ -93,10 +93,12 @@ model Medicines {
   categoryId   String
   category     Categories @relation(fields: [categoryId], references: [id])
   reviews      Reviews[]
-  userId       String?
-  user         User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+
+  @@unique([title, manufacturer])
 }
 
 model Orders {
