@@ -19,6 +19,44 @@ const createMedicine = async (req: Request, res: Response) => {
         });
     }
 };
+
+
+const updateMedicine = async (req: Request, res: Response) => {
+    const id = req.params?.id;
+    try {
+        const result = await medicinesServices.updateMedicine(req.body, id as string);
+
+        res.status(201).json({
+            success: true,
+            message: "Medicine updated successfully.",
+            data: result,
+        });
+
+    } catch (error: any) {
+        res.status(500).send({
+            success: false,
+            message: error.message
+        });
+    }
+};
+const deleteMedicine = async (req: Request, res: Response) => {
+    const id = req.params?.id;
+    try {
+        const result = await medicinesServices.deleteMedicine(id as string);
+
+        res.status(200).json({
+            success: true,
+            message: "Medicine deleted successfully.",
+            data: result,
+        });
+
+    } catch (error: any) {
+        res.status(500).send({
+            success: false,
+            message: error.message
+        });
+    }
+};
 const getMedicines = async (req: Request, res: Response) => {
 
     try {
@@ -37,6 +75,7 @@ const getMedicines = async (req: Request, res: Response) => {
         });
     }
 };
+
 const getMedicineById = async (req: Request, res: Response) => {
 
     try {
@@ -76,7 +115,10 @@ const getMedicinesCategories = async (req: Request, res: Response) => {
 
 export const medicinesController = {
     createMedicine,
+    updateMedicine,
+    deleteMedicine,
     getMedicines,
     getMedicineById,
     getMedicinesCategories,
+
 }
