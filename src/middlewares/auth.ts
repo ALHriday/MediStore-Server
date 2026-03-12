@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express"
 import { auth as betterAuth } from "../../lib/auth"
+import { UserStatus } from "../../generated/prisma/enums";
 
 declare global {
     namespace Express {
@@ -40,6 +41,14 @@ export const Auth = (...roles: UserRole[]) => {
                 return res.status(401).json({
                     success: false,
                     message: "Email Verification Required!. Please verify your Email."
+                })
+            }
+
+            if (session.user.status === UserStatus.BAN) {
+                //
+                return res.status(401).json({
+                    success: false,
+                    message: "You Don't have permission!. Please contact with the owner."
                 })
             }
 

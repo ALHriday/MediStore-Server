@@ -16,6 +16,7 @@ const createOrder = async (payload: Orders, currentUserId: string) => {
         }
     })
 }
+// Get all orders placed by current user.
 const getAllOrders = async (currentUserId: string) => {
     return await prisma.orders.findMany({ where: { userId: currentUserId } })
 }

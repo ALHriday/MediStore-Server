@@ -26,6 +26,11 @@ export const auth = betterAuth({
                 required: true,
                 defaultValue: "CUSTOMER"
             },
+            status: {
+                type: "string",
+                required: true,
+                defaultValue: "ACTIVE"
+            },
         }
     },
     emailAndPassword: {

@@ -83,7 +83,7 @@ model Verification {
 }
 
 model Medicines {
-  id           String     @id @default(uuid())
+  id           String       @id @default(uuid())
   title        String
   image        String?
   price        Float
@@ -91,24 +91,37 @@ model Medicines {
   manufacturer String
   description  String
   categoryId   String
-  category     Categories @relation(fields: [categoryId], references: [id])
+  category     Categories   @relation(fields: [categoryId], references: [id])
   reviews      Reviews[]
   userId       String
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  orderItems   OrderItems[]
 
   @@unique([title, manufacturer])
 }
 
 model Orders {
-  id               String      @id @default(uuid())
+  id               String       @id @default(uuid())
   userId           String
-  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   shipping_Address String
-  status           OrderStatus @default(PLACED)
+  status           OrderStatus  @default(PLACED)
   totalAmount      Float
-  createdAt        DateTime    @default(now())
+  orderItems       OrderItems[]
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+}
+
+model OrderItems {
+  id         String    @id @default(uuid())
+  orderId    String
+  order      Orders    @relation(fields: [orderId], references: [id])
+  medicineId String
+  medicines  Medicines @relation(fields: [medicineId], references: [id])
+  quantity   Int
+  price      Float
 }
 
 model Reviews {
