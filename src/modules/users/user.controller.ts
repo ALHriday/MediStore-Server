@@ -17,9 +17,9 @@ const getAllUsers = async (req: Request, res: Response) => {
     }
 }
 
-const updateUserById = async (req: Request, res: Response) => {
+const updateUserStatusById = async (req: Request, res: Response) => {
     try {
-        const result = await userService.updateUserById(req.body, req.params?.id as string);
+        const result = await userService.updateUserStatusById(req.body, req.params?.id as string);
         res.status(200).json({
             success: true,
             message: "User status updated successfully.",
@@ -32,8 +32,24 @@ const updateUserById = async (req: Request, res: Response) => {
         });
     }
 }
+const updateUserProfile = async (req: Request, res: Response) => {
+    try {
+        const result = await userService.updateUserProfile(req.body, req.user?.id as string);
+        res.status(200).json({
+            success: true,
+            message: "User Profile updated successfully.",
+            data: result,
+        });
+    } catch (error: any) {
+        res.status(500).send({
+            success: false,
+            message: error.message
+        });
+    }
+}
 
 export const userController = {
     getAllUsers,
-    updateUserById
+    updateUserStatusById,
+    updateUserProfile
 } 

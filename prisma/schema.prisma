@@ -103,25 +103,34 @@ model Medicines {
 }
 
 model Orders {
-  id               String       @id @default(uuid())
-  userId           String
-  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  shipping_Address String
-  status           OrderStatus  @default(PLACED)
-  totalAmount      Float
-  orderItems       OrderItems[]
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  id              String       @id @default(uuid())
+  userId          String?
+  user            User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  phone           String
+  shippingAddress String
+  cashOnDelivery  Boolean      @default(false)
+  status          OrderStatus  @default(PLACED)
+  totalAmount     Float
+  orderItems      OrderItems[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([userId])
 }
 
 model OrderItems {
   id         String    @id @default(uuid())
   orderId    String
-  order      Orders    @relation(fields: [orderId], references: [id])
+  order      Orders    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   medicineId String
-  medicines  Medicines @relation(fields: [medicineId], references: [id])
+  medicine   Medicines @relation(fields: [medicineId], references: [id])
+  title      String
   quantity   Int
   price      Float
+
+  @@index([orderId])
+  @@index([medicineId])
 }
 
 model Reviews {

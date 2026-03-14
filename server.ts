@@ -21,9 +21,10 @@ app.use(express.json());
 
 app.use("/api", medicinesRoutes);
 app.use("/api", orderRoutes);
-app.use("/api/admin", userRoutes);
+app.use("/api", userRoutes);
 
 app.get('/', (req: Request, res: Response) => {
     res.status(200).json({ success: true, message: "MediStore server is running" });
 });
+
 
