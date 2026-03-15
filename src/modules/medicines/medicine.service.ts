@@ -10,9 +10,7 @@ export interface medicineModel {
     description: string
     categoryId: string
 };
-
-// ***** Only For Seller ****
-
+// Seller
 const createMedicine = async (payload: medicineModel, currentUserId: string) => {
     const { title, image, price, stock, manufacturer, description, categoryId } = payload;
     const medicine = await prisma.medicines.create({
@@ -35,20 +33,21 @@ const createMedicine = async (payload: medicineModel, currentUserId: string) => 
     return medicine;
 };
 
-const updateMedicine = async (payload: Record<string, number>, medicineId: string) => {
-    const { stock } = payload;
+const updateMedicine = async (addStock: number, medicineId: string, currentUserId: string) => {
+    if (!addStock) {
+        throw new Error("Can't Update Stock less than 1!");
+    }
     return await prisma.medicines.update({
-        where: { id: medicineId },
-        data: { stock }
+        where: { id: medicineId, userId: currentUserId },
+        data: { stock: addStock }
     });
 };
 
-const deleteMedicine = async (medicineId: string) => {
-    return await prisma.medicines.delete({ where: { id: medicineId } });
+const deleteMedicine = async (medicineId: string, currentUserId: string) => {
+    return await prisma.medicines.delete({ where: { id: medicineId, userId: currentUserId } });
 };
 
-// **** For All Users ****
-
+// All Users
 const getMedicines = async () => {
     return await prisma.medicines.findMany();
 };

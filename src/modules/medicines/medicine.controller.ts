@@ -23,12 +23,13 @@ const createMedicine = async (req: Request, res: Response) => {
 
 const updateMedicine = async (req: Request, res: Response) => {
     const id = req.params?.id;
+    const currentUserId = req.user?.id;
     try {
-        const result = await medicinesServices.updateMedicine(req.body, id as string);
+        const result = await medicinesServices.updateMedicine(req.body?.stock, id as string, currentUserId as string);
 
         res.status(201).json({
             success: true,
-            message: "Medicine updated successfully.",
+            message: "Medicine stock updated successfully.",
             data: result,
         });
 
@@ -41,8 +42,9 @@ const updateMedicine = async (req: Request, res: Response) => {
 };
 const deleteMedicine = async (req: Request, res: Response) => {
     const id = req.params?.id;
+    const currentUserId = req.user?.id;
     try {
-        const result = await medicinesServices.deleteMedicine(id as string);
+        const result = await medicinesServices.deleteMedicine(id as string, currentUserId as string);
 
         res.status(200).json({
             success: true,

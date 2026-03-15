@@ -21,6 +21,23 @@ const createOrder = async (req: Request, res: Response) => {
     }
 }
 
+const getUserOrders = async (req: Request, res: Response) => {
+    try {
+        const result = await orderService.getUserOrders(req.user?.id as string);
+
+        res.status(200).json({
+            success: true,
+            message: "All orders retrieved successfully.",
+            data: result,
+        });
+
+    } catch (error: any) {
+        res.status(500).send({
+            success: false,
+            message: error.message
+        });
+    }
+}
 const getAllOrders = async (req: Request, res: Response) => {
 
     try {
@@ -75,6 +92,7 @@ const updateOrderStatusById = async (req: Request, res: Response) => {
 }
 export const orderController = {
     createOrder,
+    getUserOrders,
     getAllOrders,
     getOrderById,
     updateOrderStatusById

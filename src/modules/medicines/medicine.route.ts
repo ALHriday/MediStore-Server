@@ -4,13 +4,13 @@ import { medicinesController } from "./medicine.controller";
 
 const router = express.Router();
 
-//Only seller can create Medicine.
-router.post('/seller/medicines', Auth(UserRole.SELLER, UserRole.ADMIN), medicinesController.createMedicine);
-router.put('/seller/medicines/:id', Auth(UserRole.SELLER, UserRole.ADMIN), medicinesController.updateMedicine);
-router.delete('/seller/medicines/:id', Auth(UserRole.SELLER, UserRole.ADMIN), medicinesController.deleteMedicine);
+//Seller
+router.post('/seller/medicines', Auth(UserRole.SELLER), medicinesController.createMedicine);
+router.put('/seller/medicines/:id', Auth(UserRole.SELLER), medicinesController.updateMedicine);
+router.delete('/seller/medicines/:id', Auth(UserRole.SELLER), medicinesController.deleteMedicine);
 
 
-// All user can get all medicines, medicines categories and also get medicine by id.
+// All user can get all medicines, medicine categories and also get medicine by medicineId.
 router.get('/medicines', Auth(), medicinesController.getMedicines);
 router.get('/medicines/:id', Auth(), medicinesController.getMedicineById);
 router.get('/categories', Auth(), medicinesController.getMedicinesCategories);
