@@ -32,9 +32,11 @@ const updateUserStatusById = async (req: Request, res: Response) => {
         });
     }
 }
+
 const updateUserProfile = async (req: Request, res: Response) => {
+
     try {
-        const result = await userService.updateUserProfile(req.body, req.user?.id as string);
+        const result = await userService.updateUserProfile(req.body, req.user?.id as string, req.file?.path);
         res.status(200).json({
             success: true,
             message: "User Profile updated successfully.",

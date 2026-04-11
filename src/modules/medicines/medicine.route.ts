@@ -11,9 +11,9 @@ router.delete('/seller/medicines/:id', Auth(UserRole.SELLER), medicinesControlle
 
 
 // All user can get all medicines, medicine categories and also get medicine by medicineId.
-router.get('/medicines', Auth(), medicinesController.getMedicines);
-router.get('/medicines/:id', Auth(), medicinesController.getMedicineById);
-router.get('/categories', Auth(), medicinesController.getMedicinesCategories);
+router.get('/medicines', medicinesController.getMedicines);
+router.get('/medicines/:id', medicinesController.getMedicineById);
+router.get('/categories', medicinesController.getMedicinesCategories);
 
 
 export const medicinesRoutes = router;

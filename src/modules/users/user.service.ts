@@ -1,13 +1,13 @@
+import { uploadImage } from "../../../lib/cloudinary";
 import { prisma } from "../../../lib/prisma";
 
 const getAllUsers = async () => {
     return await prisma.user.findMany();
 }
 
-type UpdateStatus = "ACTIVE" | "BAN";
 
 interface updateUserStatus {
-    status: UpdateStatus
+    status: "ACTIVE" | "BAN";
 }
 
 const updateUserStatusById = async (payload: updateUserStatus, userId: string) => {
@@ -21,9 +21,22 @@ interface UserProfile {
     phone: string;
 }
 
-const updateUserProfile = async (payload: UserProfile, currentUserId: string) => {
-    const { name, image, phone } = payload;
-    return await prisma.user.update({ where: { id: currentUserId }, data: { name, image, phone } });
+const updateUserProfile = async (payload: UserProfile, currentUserId: string, filePath: any) => {
+    const { name, phone } = payload;
+
+    try {
+        if (!filePath) {
+            throw new Error("No file");
+        }
+        const imageURL = await uploadImage(filePath);
+
+        await prisma.user.update({ where: { id: currentUserId }, data: { name, image: String(imageURL), phone } });
+
+        return { name, image: String(imageURL), phone };
+
+    } catch (err) {
+        return err;
+    }
 }
 
 export const userService = {

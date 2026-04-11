@@ -1,4 +1,4 @@
-import { betterAuth } from "better-auth";
+import { betterAuth, optional } from "better-auth";
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { prisma } from "./prisma";
 import nodemailer from "nodemailer"
@@ -18,7 +18,7 @@ export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
-    trustedOrigins: [process.env.APP_URL!],
+    trustedOrigins: [process.env.FRONTEND_URL!],
     user: {
         additionalFields: {
             role: {
@@ -31,7 +31,14 @@ export const auth = betterAuth({
                 required: true,
                 defaultValue: "ACTIVE"
             },
+            phone: {
+                type: "string",
+                required: false,
+            },
         }
+    },
+    session: {
+        deferSessionRefresh: true
     },
     emailAndPassword: {
         enabled: true,
@@ -42,12 +49,8 @@ export const auth = betterAuth({
         sendOnSignUp: true,
         autoSignInAfterVerification: true,
         sendVerificationEmail: async ({ user, url, token }, request) => {
-            // console.log("User: ", user);
-            // console.log(`Email Verification Sent At : ${url}`);
-            // const emailVerificationUrl = `${process.env.BETTER_AUTH_URL}/verify-email?token=${token}`;
-            // console.log("Email-Verify", emailVerificationUrl);
             try {
-                const info = await transporter.sendMail({
+                await transporter.sendMail({
                     from: '"MediStore" <medistore@gmail.com>',
                     to: user.email,
                     subject: "Verify Your Email!",
@@ -59,7 +62,7 @@ export const auth = betterAuth({
             }
         },
     },
-    baseURL: process.env.APP_URL,
+    baseURL: process.env.BETTER_AUTH_URL,
     socialProviders: {
         google: {
             prompt: "select_account consent",
