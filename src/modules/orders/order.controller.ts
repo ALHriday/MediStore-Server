@@ -57,6 +57,22 @@ const getAllOrders = async (req: Request, res: Response) => {
     }
 }
 
+const getOrderByUserId = async (req: Request, res: Response) => {
+    try {
+        const result = await orderService.getOrderByUserId(req.params?.id as string);
+
+        res.status(200).json({
+            success: true,
+            message: "order retrieved successfully.",
+            data: result,
+        });
+    } catch (error: any) {
+        res.status(500).send({
+            success: false,
+            message: error.message
+        });
+    }
+}
 const getOrderById = async (req: Request, res: Response) => {
     try {
         const result = await orderService.getOrderById(req.params?.id as string);
@@ -95,5 +111,6 @@ export const orderController = {
     getUserOrders,
     getAllOrders,
     getOrderById,
-    updateOrderStatusById
+    updateOrderStatusById,
+    getOrderByUserId
 }

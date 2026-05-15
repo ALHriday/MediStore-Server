@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { medicinesServices } from "./medicine.service";
+import { UserRole } from "../../middlewares/auth";
 
 const createMedicine = async (req: Request, res: Response) => {
     const userId = req.user?.id;
@@ -126,10 +127,16 @@ const getMedicinesCategories = async (req: Request, res: Response) => {
         });
     }
 };
-const getStats = async (req: Request, res: Response) => {
 
+type User = {
+    id: string;
+    role: UserRole;
+}
+
+const getStats = async (req: Request, res: Response) => {
+    const { id, role } = req.user as User;
     try {
-        const result = await medicinesServices.getStats();
+        const result = await medicinesServices.getStats(id, role);
         res.status(200).json({
             success: true,
             message: "success.",

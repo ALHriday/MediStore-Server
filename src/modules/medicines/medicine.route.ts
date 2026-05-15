@@ -8,7 +8,7 @@ const router = express.Router();
 router.post('/seller/medicines', Auth(UserRole.SELLER, UserRole.ADMIN), medicinesController.createMedicine);
 router.put('/seller/medicines/:id', Auth(UserRole.SELLER), medicinesController.updateMedicine);
 router.delete('/seller/medicines/:id', Auth(UserRole.SELLER), medicinesController.deleteMedicine);
-router.get('/medicines/stats', medicinesController.getStats);
+router.get('/stats', Auth(UserRole.ADMIN, UserRole.SELLER), medicinesController.getStats);
 
 
 // All user can get all medicines, medicine categories and also get medicine by medicineId.

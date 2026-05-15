@@ -13,6 +13,7 @@ export interface OrderItemsData {
     medicineId: string;
     quantity: number;
     price: number;
+    sellerId: string;
 }
 
 type OrderStatus = "PLACED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
@@ -25,7 +26,6 @@ const createOrder = async (payload: Orders, currentUserId?: string) => {
     const { orderItems, name, phone, cashOnDelivery, shippingAddress } = payload;
 
     try {
-
 
         if (!orderItems || orderItems.length === 0) {
             throw new Error('Your Cart is Empty!');
@@ -55,6 +55,8 @@ const createOrder = async (payload: Orders, currentUserId?: string) => {
                 title: medicine.title,
                 price: medicine.price,
                 quantity: items.quantity,
+                sellerId: medicine.userId,
+                subTotal,
             }
         });
 
@@ -111,7 +113,13 @@ const getAllOrders = async (currentUserId: string) => {
     });
 };
 
-// Get order by orderId => Seller
+// Get order by userId => Seller
+const getOrderByUserId = async (id: string) => {
+    return await prisma.orders.findMany({
+        where: { userId: id },
+        include: { orderItems: true }
+    })
+}
 const getOrderById = async (orderId: string) => {
     return await prisma.orders.findUnique({
         where: { id: orderId },
@@ -131,4 +139,5 @@ export const orderService = {
     getAllOrders,
     getOrderById,
     updateOrderStatusById,
+    getOrderByUserId,
 }

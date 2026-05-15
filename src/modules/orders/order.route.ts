@@ -7,6 +7,7 @@ const router = express.Router();
 router.post('/orders', orderController.createOrder);
 router.get('/orders', Auth(UserRole.CUSTOMER, UserRole.ADMIN), orderController.getUserOrders);
 router.get('/orders/:id', orderController.getOrderById);
+router.get('/orders/user/:id', orderController.getOrderByUserId);
 
 // Seller
 router.get('/seller/orders', Auth(UserRole.SELLER), orderController.getAllOrders);

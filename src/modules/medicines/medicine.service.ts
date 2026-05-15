@@ -1,4 +1,3 @@
-import { count } from "node:console";
 import { prisma } from "../../../lib/prisma";
 import { UserRole } from "../../middlewares/auth";
 
@@ -47,9 +46,27 @@ const updateMedicine = async (addStock: number, medicineId: string, currentUserI
 const deleteMedicine = async (medicineId: string, currentUserId: string) => {
     return await prisma.medicines.delete({ where: { id: medicineId, userId: currentUserId } });
 };
-const getStats = async () => {
-    const totalMedicines = await prisma.medicines.count();
-    return { totalMedicines };
+
+const getStats = async (userId: string, userRole: UserRole) => {
+
+    if (userRole === UserRole.ADMIN) {
+        const [totalUsers, totalMedicines, totalOrders, totalRevenue] = await Promise.all([
+            prisma.user.count(),
+            prisma.medicines.count(),
+            prisma.orders.count(),
+            prisma.orders.aggregate({ _sum: { totalAmount: true } }),
+        ]);
+        return { totalUsers, totalMedicines, totalOrders, totalRevenue: totalRevenue?._sum?.totalAmount || 0 };
+    }
+
+    if (userRole === UserRole.SELLER) {
+        const [totalMedicines, totalOrders, totalRevenue] = await Promise.all([
+            prisma.medicines.count({ where: { userId: userId } }),
+            prisma.orderItems.count({ where: { sellerId: userId } }),
+            prisma.orderItems.aggregate({ _sum: { subTotal: true }, where: { sellerId: userId } }),
+        ]);
+        return { totalMedicines, totalOrders, totalRevenue: totalRevenue._sum.subTotal || 0 };
+    }
 };
 
 // All Users
