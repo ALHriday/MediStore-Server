@@ -1,57 +1,25 @@
 import { prisma } from "../../lib/prisma.js";
-
-
-export interface Orders {
-    name: string;
-    phone: string;
-    shippingAddress: string;
-    cashOnDelivery: boolean;
-    orderItems: OrderItemsData[];
-    userId: string;
-}
-
-export interface OrderItemsData {
-    orderId: string;
-    medicineId: string;
-    quantity: number;
-    price: number;
-    sellerId: string;
-}
-
-type OrderStatus = "PLACED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
-
-interface Status {
-    status: OrderStatus;
-}
 // Create order by customer.
-const createOrder = async (payload: Orders) => {
+const createOrder = async (payload) => {
     const { orderItems, name, phone, cashOnDelivery, shippingAddress, userId } = payload;
-
     try {
-
         if (!orderItems || orderItems.length === 0) {
             throw new Error('Your Cart is Empty!');
         }
-        const medicineIds = orderItems.map((i: any) => i.medicineId);
-
+        const medicineIds = orderItems.map((i) => i.medicineId);
         const medicines = await prisma.medicines.findMany({ where: { id: { in: medicineIds } } });
-
-        let totalPrice: number = 0;
-
-        const orderItemsData = orderItems.map((items: OrderItemsData) => {
-            const medicine = medicines.find((m: any) => m.id === items.medicineId);
-
+        let totalPrice = 0;
+        const orderItemsData = orderItems.map((items) => {
+            const medicine = medicines.find((m) => m.id === items.medicineId);
             if (!medicine) {
                 throw new Error("Medicine not found!");
-            };
-
+            }
+            ;
             if (medicine.stock < items.quantity) {
                 throw new Error(`${medicine.title} is out of stock!`);
             }
-
-            const subTotal: number = medicine.price * items.quantity;
+            const subTotal = medicine.price * items.quantity;
             totalPrice += subTotal;
-
             return {
                 medicineId: medicine.id,
                 title: medicine.title,
@@ -59,11 +27,9 @@ const createOrder = async (payload: Orders) => {
                 quantity: items.quantity,
                 sellerId: medicine.userId,
                 subTotal,
-            }
+            };
         });
-
-        return prisma.$transaction(async (tx: any) => {
-
+        return prisma.$transaction(async (tx) => {
             const order = await tx.orders.create({
                 data: {
                     name,
@@ -76,59 +42,50 @@ const createOrder = async (payload: Orders) => {
                 },
                 include: { orderItems: true }
             });
-
-            await Promise.all(
-                orderItems.map(async (item) => {
-                    await tx.medicines.update({
-                        where: { id: item.medicineId },
-                        data: {
-                            stock: {
-                                decrement: item.quantity
-                            }
+            await Promise.all(orderItems.map(async (item) => {
+                await tx.medicines.update({
+                    where: { id: item.medicineId },
+                    data: {
+                        stock: {
+                            decrement: item.quantity
                         }
-                    })
-                })
-            );
-
+                    }
+                });
+            }));
             return order;
         }, { timeout: 20000 });
-    } catch (err: any) {
+    }
+    catch (err) {
         return { status: false, message: err.message || 'Something went wrong!' };
     }
-}
-
+};
 // Get customer own orders.
-const getUserOrders = async (currentUserId: string) => {
+const getUserOrders = async (currentUserId) => {
     return await prisma.orders.findMany({
         where: { userId: currentUserId },
         select: { id: true, name: true, phone: true, totalAmount: true, orderItems: true }
-    })
-}
-
+    });
+};
 // Get all orders by Seller
 const getAllOrders = async () => {
     return await prisma.orders.findMany();
 };
-
-
-const getSellerOrders = async (currentUserId: string) => {
+const getSellerOrders = async (currentUserId) => {
     return await prisma.orders.findMany({
         where: { orderItems: { some: { sellerId: currentUserId } } }
-    })
-}
-
-const getOrderById = async (orderId: string) => {
+    });
+};
+const getOrderById = async (orderId) => {
     return await prisma.orders.findUnique({
         where: { id: orderId },
         include: { orderItems: true }
-    })
-}
+    });
+};
 // Update order status by Seller.
-const updateOrderStatusById = async (orderId: string, payload: Status) => {
+const updateOrderStatusById = async (orderId, payload) => {
     const { status } = payload;
     return await prisma.orders.update({ where: { id: orderId }, data: { status } });
 };
-
 export const orderService = {
     createOrder,
     getUserOrders,
@@ -136,4 +93,4 @@ export const orderService = {
     getOrderById,
     updateOrderStatusById,
     getSellerOrders,
-}
+};

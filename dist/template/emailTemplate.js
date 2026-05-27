@@ -1,4 +1,4 @@
-export const emailTemplate = (url: string) => {
+export const emailTemplate = (url) => {
     return `
                 <!DOCTYPE html>
 <html>
@@ -47,6 +47,5 @@ If you did not create this account, you can safely ignore this email.
 
 </body>
 </html>
-                `
-}
-
+                `;
+};
