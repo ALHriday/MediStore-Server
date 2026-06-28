@@ -189,11 +189,20 @@ const getStats = async (req: Request, res: Response) => {
     const { id, role } = req.user as User;
     try {
         const result = await medicinesServices.getStats(id, role);
-        res.status(200).json({
-            success: true,
-            message: "success.",
-            data: result,
-        });
+
+        if (!result) {
+            res.status(403).json({
+                success: false,
+                message: "forbidden!",
+                data: null,
+            });
+        } else {
+            res.status(200).json({
+                success: true,
+                message: "success.",
+                data: result,
+            });
+        };
 
     } catch (error: any) {
         res.status(500).send({

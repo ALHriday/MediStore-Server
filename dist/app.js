@@ -343,6 +343,7 @@ var getStats = async (userId, userRole) => {
     ]);
     return { totalMedicines, totalOrders, totalRevenue: totalRevenue._sum.subTotal || 0 };
   }
+  return null;
 };
 var getMedicinesLen = async () => {
   const totalMedicines = await prisma.medicines.count();
@@ -554,11 +555,20 @@ var getStats2 = async (req, res) => {
   const { id, role } = req.user;
   try {
     const result = await medicinesServices.getStats(id, role);
-    res.status(200).json({
-      success: true,
-      message: "success.",
-      data: result
-    });
+    if (!result) {
+      res.status(403).json({
+        success: false,
+        message: "forbidden!",
+        data: null
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        message: "success.",
+        data: result
+      });
+    }
+    ;
   } catch (error) {
     res.status(500).send({
       success: false,

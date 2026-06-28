@@ -80,6 +80,8 @@ const getStats = async (userId: string, userRole: UserRole) => {
         ]);
         return { totalMedicines, totalOrders, totalRevenue: totalRevenue._sum.subTotal || 0 };
     }
+
+    return null;
 };
 
 
